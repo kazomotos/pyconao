@@ -4,7 +4,7 @@ from math import ceil
 from copy import copy
 from json import dumps, loads
 from random import random
-from time import sleep, time, time_ns
+from time import sleep, time_ns
 from urllib.parse import quote
 from .param import NaoConnect as Param
 
@@ -273,7 +273,7 @@ class NaoApp(Param):
                 NaoApp.NAME_INSTANCE_ID:_instance,
                 NaoApp.NAME_ASSET_ID:_asset,
                 NaoApp.NAME_POINT_ID:_series,
-                NaoApp.NAME_POINT_MODEL:args[NaoApp.SERIES_TYPE],
+                NaoApp.NAME_POINT_MODEL:args[NaoApp.NAME_SERIES_TYPE],
                 NaoApp.NAME_CONFIG:dumps(conf)
             })[NaoApp.NAME_ID_ID])
         else:
