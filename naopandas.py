@@ -80,8 +80,8 @@ class NaoPandas(NaoApp):
             raise ValueError("only 'mean','median','max','min','last','first' possible for aggregate")
         if (stop-start).total_seconds() < 0:
             raise ValueError("stop must be greater than start")
-        if len(series)>350:
-            raise ValueError("maximal 350 series per call")
+        if len(series)>150:
+            raise ValueError("maximal 150 series per call")
         if (stop-start).total_seconds()/self._intervalToSec(interval)*len(series) > 10000000:
             raise ValueError("maximal 10.000.000 measurment data per call")
         param={
@@ -106,6 +106,12 @@ class NaoPandas(NaoApp):
         }
         add_point = param[NaoPandas.NAME_SELECT][NaoPandas.NAME_POINTS].append
         add_traces = param[NaoPandas.NAME_PLOT][NaoPandas.NAME_TRACES].append
+        names = []
+        add_name = names.append
+        for idx in series.index:
+            name = "" 
+            for idy in idx: name+=idy+"."
+            add_name(name[:-1])
         for idx in range(len(series)):
             point={
                 NaoPandas.NAME_ASSET: series[NaoPandas.NAME_ASSET_ID][idx],
@@ -113,17 +119,18 @@ class NaoPandas(NaoApp):
                 NaoPandas.NAME_SERIES: series[NaoPandas.NAME_SERIES_ID][idx],
             }
             add_traces({
-                NaoPandas.NAME_ID:idx,
+                NaoPandas.NAME_ID:names[idx],
                 NaoPandas.NAME_Y:{
                     NaoPandas.NAME_POINT:point
                 }
             })
             add_point(point)
-        frame = pd.DataFrame()
+        raw_frame = {}
         data=self.getPlotformatetTimeseries(param)
-        frame.index = pd.DatetimeIndex(data[NaoPandas.NAME_RESULT][NaoPandas.NAME_TIME])
         for dat in data[NaoPandas.NAME_RESULT][NaoPandas.NAME_TRACES]:
-            frame[int(dat[NaoPandas.NAME_ID])] = dat[NaoPandas.NAME_Y]
+            raw_frame[dat[NaoPandas.NAME_ID]] = dat[NaoPandas.NAME_Y]
+        frame = pd.DataFrame(raw_frame)
+        frame.index = pd.DatetimeIndex(data[NaoPandas.NAME_RESULT][NaoPandas.NAME_TIME])
         return(frame)
 
     def _intervalToSec(self, interval:str) -> float:
