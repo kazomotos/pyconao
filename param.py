@@ -36,6 +36,7 @@ class Param():
     NAME_POINT_ID = "_point"
     NAME_ASSET = "asset"
     NAME_INSTANCE = "instance"
+    NAME_INSTANCES = "instances"
     NAME_INSTANCE_ID = "_instance"
     NAME_SERIES = "series"
     NAME_SERIES_ID = "_series"
@@ -91,6 +92,10 @@ class Param():
     NAME_PLOT = "plot"
     NAME_TRACES = "traces"
     NAME_TRACE = "trace"
+    NAME_METERS = "meters"
+    NAME_ACTORS = "actors"
+    NAME_SETPOINTS = "setpoints"
+    NAME_SENSORS = "sensors"
 
 class Labling(Param):
     ASSET = "asset"
@@ -130,12 +135,13 @@ class NaoConnect(Param):
     URL_ASSET = "/api/nao/asset"
     URL_PATH = "/api/nao/part"
     URL_UNITS = "/api/nao/units"
-    URL_SERIES = "/api/nao/series/"
+    URL_SERIES = "/api/nao/asset/more/%s"
     URL_SINGELVALUES = "/api/series/data/singlevalues"
     URL_PLOTTIMESERIES = "/api/series/data/plot"
     URL_CONSOLIDATE = "template"
     QUERY_GET_ENDPOINT = "?query=_instance=%s,_point=%s"
     QUERY_GET = "?query="
+    QUERY_SELECT = "?select="
     QUERY_HEADER_JSON = 'application/json'
     QUERY_BEARER = "Bearer "
     QUERY_LOGINHEADER = {'Content-Type': 'application/x-www-form-urlencoded'}

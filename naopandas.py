@@ -48,29 +48,36 @@ class NaoPandas(NaoApp):
                 add[NaoPandas.NAME_INSTANCE_ID](instance[NaoPandas.NAME_ID_ID])
         return(pd.DataFrame(self.instances))
 
+    #M_ROUTE_SERIES = "/instance/internal/all" ?query=datapoints._point=in$%s&select=_id"
     def getSeries(self) -> pd.DataFrame:
         if len(self.series[NaoPandas.NAME_ASSET]) == 0:
             add = {}
             workspaces = {}
             assets = {}
-            series = {}
             for adds in self.series.keys():add[adds]=add[adds]= self.series[adds].append
             for worksp in super().getWorkspace().get(NaoPandas.NAME_RESULTS):workspaces[worksp[NaoPandas.NAME_ID_ID]]=worksp[NaoPandas.NAME_NAME] #type:ignore
             for asset in super().getAssets().get(NaoPandas.NAME_RESULTS):assets[asset[NaoPandas.NAME_ID_ID]]=[asset[NaoPandas.NAME_NAME],asset[NaoPandas.NAME_WORKSPACE_ID]] #type:ignore
             for _asset in assets: 
-                serie = super().getSeries(**{NaoPandas.NAME_ASSET:_asset}).get(NaoPandas.NAME_RESULTS)
-                if _asset not in series:series[_asset]={}
-                for ser in serie:series[_asset][ser[NaoPandas.NAME_ID_ID]]=ser[NaoPandas.NAME_NAME] #type:ignore
-            for instance in super().getInstances().get(NaoPandas.NAME_RESULTS): #type:ignore
-                for serie in series[instance[NaoPandas.NAME_ASSET_ID]]:
-                    add[NaoPandas.NAME_ASSET](assets[instance[NaoPandas.NAME_ASSET_ID]][0])
-                    add[NaoPandas.NAME_ASSET_ID](instance[NaoPandas.NAME_ASSET_ID])
-                    add[NaoPandas.NAME_WORKSPACE](workspaces[assets[instance[NaoPandas.NAME_ASSET_ID]][1]])
-                    add[NaoPandas.NAME_WORKSPACE_ID](assets[instance[NaoPandas.NAME_ASSET_ID]][1])
-                    add[NaoPandas.NAME_INSTANCE](instance[NaoPandas.NAME_NAME])
-                    add[NaoPandas.NAME_INSTANCE_ID](instance[NaoPandas.NAME_ID_ID])
-                    add[NaoPandas.NAME_SERIES](series[instance[NaoPandas.NAME_ASSET_ID]][serie])
-                    add[NaoPandas.NAME_SERIES_ID](serie)
+                asset = super().getSeries(_asset,select=[
+                    NaoPandas.NAME_INSTANCES,
+                    NaoPandas.NAME_WORKSPACE_ID,
+                    NaoPandas.NAME_ASSET_ID,
+                    NaoPandas.NAME_ACTORS,
+                    NaoPandas.NAME_METERS,
+                    NaoPandas.NAME_SENSORS,
+                    NaoPandas.NAME_SETPOINTS
+                ])
+                for instance in asset[NaoPandas.NAME_INSTANCES]: #type:ignore
+                    for type_s in [NaoPandas.NAME_METERS, NaoPandas.NAME_SENSORS, NaoPandas.NAME_SETPOINTS, NaoPandas.NAME_ACTORS]:
+                        for serie in asset[type_s]:
+                            add[NaoPandas.NAME_ASSET](assets[_asset][0])
+                            add[NaoPandas.NAME_ASSET_ID](_asset)
+                            add[NaoPandas.NAME_WORKSPACE](workspaces[assets[_asset][1]])
+                            add[NaoPandas.NAME_WORKSPACE_ID](assets[_asset][1])
+                            add[NaoPandas.NAME_INSTANCE](instance[NaoPandas.NAME_NAME])
+                            add[NaoPandas.NAME_INSTANCE_ID](instance[NaoPandas.NAME_ID_ID])
+                            add[NaoPandas.NAME_SERIES](serie[NaoPandas.NAME_NAME])
+                            add[NaoPandas.NAME_SERIES_ID](serie[NaoPandas.NAME_ID_ID])
         return(pd.DataFrame(self.series))
     
     def getSeriesData(self,series:pd.DataFrame,start:datetime=datetime.fromisoformat("2021-12-31 23:00:00"),stop:datetime=datetime.fromisoformat("2022-01-30 23:00:00"),validate=True,interval:str="15m",aggregate:Literal["mean","median","max","min","last","first"]="mean") -> pd.DataFrame:

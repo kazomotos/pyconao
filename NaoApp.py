@@ -347,15 +347,15 @@ class NaoApp(Param):
     def patchInstance(self, dict_instance, instance_id):
         return(self._sendDataToNaoJson(NaoApp.NAME_PATCH, NaoApp.URL_INSTANCE+"/"+instance_id, dict_instance))
     
-    def getSeries(self, **args):
-        if len(args) > 0:
-            query = NaoApp.QUERY_GET
-            for arg in args:
-                query += arg + "=" + args[arg] + ","
-            query = query[:-1]
+    def getSeries(self, asset, select=[]):
+        if len(select) > 0:
+            select_q = NaoApp.QUERY_SELECT
+            for arg in select:
+                select_q += arg + ","
+            select_q = select_q[:-1]
         else:
-            query = ""
-        return(self._sendDataToNaoJson(NaoApp.NAME_GET, NaoApp.URL_SERIES+NaoApp.URL_CONSOLIDATE+query, {}))
+            select_q = ""
+        return(self._sendDataToNaoJson(NaoApp.NAME_GET, NaoApp.URL_SERIES%(asset)+select_q, {}))
 
     def getUnits(self, **args):
         if len(args) > 0:
