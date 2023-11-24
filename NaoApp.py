@@ -18,7 +18,7 @@ class NaoApp(Param):
             NaoApp.NAME_PAYLOAD:NaoApp.NAME_EMAIL+"="+quote(email)+"&"+NaoApp.NAME_PASSWD+"="+quote(password)
         }
         self.headers = NaoApp.QUERY_TRANSFERHEADER
-        self.__conneciton = None # type: ignore
+        self._conneciton = None # type: ignore
         self.local=local
 
     def sendTelegrafData(self, payload):
@@ -46,14 +46,14 @@ class NaoApp(Param):
         if type(payload) == list:
             payload = NaoApp.FORMAT_TELEGRAFFRAMESEPERATOR*len(payload) % tuple(payload)
         try:
-            self.__conneciton.request(NaoApp.NAME_POST, NaoApp.URL_TELEGRAF, payload, self.headers) # type: ignore
-            status = self.__conneciton.getresponse().status # type: ignore
-            self.__conneciton.close() # type: ignore
+            self._conneciton.request(NaoApp.NAME_POST, NaoApp.URL_TELEGRAF, payload, self.headers) # type: ignore
+            status = self._conneciton.getresponse().status # type: ignore
+            self._conneciton.close() # type: ignore
         except:
             self._loginNao()
-            self.__conneciton.request(NaoApp.NAME_POST, NaoApp.URL_TELEGRAF, payload, self.headers) # type: ignore
-            status = self.__conneciton.getresponse().status # type: ignore
-            self.__conneciton.close() # type: ignore
+            self._conneciton.request(NaoApp.NAME_POST, NaoApp.URL_TELEGRAF, payload, self.headers) # type: ignore
+            status = self._conneciton.getresponse().status # type: ignore
+            self._conneciton.close() # type: ignore
         return(status)
 
     def _sendDataToNaoJson(self, method, url, payload) -> dict:
@@ -62,16 +62,16 @@ class NaoApp(Param):
         if payload != None:
             payload = dumps(payload)
         try:
-            self.__conneciton.request(method, url, payload, header) # type: ignore
-            data = self.__conneciton.getresponse().read() # type: ignore
-            self.__conneciton.close() # type: ignore
+            self._conneciton.request(method, url, payload, header) # type: ignore
+            data = self._conneciton.getresponse().read() # type: ignore
+            self._conneciton.close() # type: ignore
         except:
             self._loginNao()
             header = copy(self.headers)
             header[NaoApp.NAME_CONTENT_HEADER] = NaoApp.QUERY_HEADER_JSON
-            self.__conneciton.request(method, url, payload, header) # type: ignore
-            data = self.__conneciton.getresponse().read() # type: ignore
-            self.__conneciton.close() # type: ignore
+            self._conneciton.request(method, url, payload, header) # type: ignore
+            data = self._conneciton.getresponse().read() # type: ignore
+            self._conneciton.close() # type: ignore
         if data == b'':
             return('') # type: ignore
         else:
@@ -114,32 +114,32 @@ class NaoApp(Param):
 
     def _loginNaoLocal(self):
         try:
-            self.__conneciton = http.client.HTTPConnection(self.auth[NaoApp.NAME_HOST])
-            self.__conneciton.request(NaoApp.NAME_POST, NaoApp.URL_LOGIN, self.auth[NaoApp.NAME_PAYLOAD], NaoApp.QUERY_LOGINHEADER)
-            res = self.__conneciton.getresponse()
+            self._conneciton = http.client.HTTPConnection(self.auth[NaoApp.NAME_HOST])
+            self._conneciton.request(NaoApp.NAME_POST, NaoApp.URL_LOGIN, self.auth[NaoApp.NAME_PAYLOAD], NaoApp.QUERY_LOGINHEADER)
+            res = self._conneciton.getresponse()
             data = loads(res.read().decode(NaoApp.NAME_UTF8))
             self.headers[NaoApp.NAME_WEBAUTH] = NaoApp.QUERY_BEARER + data[NaoApp.NAME_TOKENAC]
         except:
             sleep(1) # type: ignore
-            self.__conneciton = http.client.HTTPConnection(self.auth[NaoApp.NAME_HOST])
-            self.__conneciton.request(NaoApp.NAME_POST, NaoApp.URL_LOGIN, self.auth[NaoApp.NAME_PAYLOAD], NaoApp.QUERY_LOGINHEADER)
-            res = self.__conneciton.getresponse()
+            self._conneciton = http.client.HTTPConnection(self.auth[NaoApp.NAME_HOST])
+            self._conneciton.request(NaoApp.NAME_POST, NaoApp.URL_LOGIN, self.auth[NaoApp.NAME_PAYLOAD], NaoApp.QUERY_LOGINHEADER)
+            res = self._conneciton.getresponse()
             data = loads(res.read().decode(NaoApp.NAME_UTF8))
             self.headers[NaoApp.NAME_WEBAUTH] = NaoApp.QUERY_BEARER + data[NaoApp.NAME_TOKENAC]
 
 
     def _loginNaoCloud(self):
         try:
-            self.__conneciton = http.client.HTTPSConnection(self.auth[NaoApp.NAME_HOST])
-            self.__conneciton.request(NaoApp.NAME_POST, NaoApp.URL_LOGIN, self.auth[NaoApp.NAME_PAYLOAD], NaoApp.QUERY_LOGINHEADER)
-            res = self.__conneciton.getresponse()
+            self._conneciton = http.client.HTTPSConnection(self.auth[NaoApp.NAME_HOST])
+            self._conneciton.request(NaoApp.NAME_POST, NaoApp.URL_LOGIN, self.auth[NaoApp.NAME_PAYLOAD], NaoApp.QUERY_LOGINHEADER)
+            res = self._conneciton.getresponse()
             data = loads(res.read().decode(NaoApp.NAME_UTF8))
             self.headers[NaoApp.NAME_WEBAUTH] = NaoApp.QUERY_BEARER + data[NaoApp.NAME_TOKENAC]
         except:
             sleep(1) # type: ignore
-            self.__conneciton = http.client.HTTPSConnection(self.auth[NaoApp.NAME_HOST])
-            self.__conneciton.request(NaoApp.NAME_POST, NaoApp.URL_LOGIN, self.auth[NaoApp.NAME_PAYLOAD], NaoApp.QUERY_LOGINHEADER)
-            res = self.__conneciton.getresponse()
+            self._conneciton = http.client.HTTPSConnection(self.auth[NaoApp.NAME_HOST])
+            self._conneciton.request(NaoApp.NAME_POST, NaoApp.URL_LOGIN, self.auth[NaoApp.NAME_PAYLOAD], NaoApp.QUERY_LOGINHEADER)
+            res = self._conneciton.getresponse()
             data = loads(res.read().decode(NaoApp.NAME_UTF8))
             self.headers[NaoApp.NAME_WEBAUTH] = NaoApp.QUERY_BEARER + data[NaoApp.NAME_TOKENAC]
 
@@ -247,6 +247,9 @@ class NaoApp(Param):
         }
         return(self._sendDataToNaoJson(NaoApp.NAME_POST, NaoApp.URL_INSTANCE, payload))
         
+    def createInstancePerPayload(self,payload:dict):
+        return(self._sendDataToNaoJson(NaoApp.NAME_POST, NaoApp.URL_INSTANCE, payload))
+
     def patchEnpointConifg(self, conf:dict, _instance=None, _series=None, _asset=None, **args):
         """
         _asset (id), _instance (id) and _series (id) can be used as arguments \n
